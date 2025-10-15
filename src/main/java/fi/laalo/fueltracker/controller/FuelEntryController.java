@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/fuel-entries")
-@CrossOrigin(origins = "http://localhost:8080") // Dev use
+@CrossOrigin(origins = "*") // Dev use
 
 public class FuelEntryController {
 

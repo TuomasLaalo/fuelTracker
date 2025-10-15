@@ -13,7 +13,7 @@ public class FuelEntryService {
     @Autowired
     private FuelEntryRepository repository;
 
-    // --- CRUD operations ---
+    // CRUD operations
 
     public List<FuelEntry> getAllEntries() {
         return repository.findAll();
@@ -31,7 +31,8 @@ public class FuelEntryService {
         repository.deleteById(id);
     }
 
-    // --- Calculation of average fuel consumption ---
+    // Calculation of average fuel consumption
+    
     public double calculateConsumption() {
 
         List<FuelEntry> all = repository.findAll();
