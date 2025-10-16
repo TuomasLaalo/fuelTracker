@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/fuel-entries")
+@RequestMapping("/api/fuel_entries")
 @CrossOrigin(origins = "*") // Dev use
 
 public class FuelEntryController {

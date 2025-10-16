@@ -8,10 +8,12 @@ import java.util.List;
 @Table(name = "users")
 public class User {
 
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    
     @Column(unique = true, nullable = false)
     private String email;
     private String password;
@@ -19,10 +21,12 @@ public class User {
 
     private Instant createdAt = Instant.now();
 
+
+    // Relation to Vehicle
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Vehicle> vehicles;
 
-    // Oletuskonstruktori vaaditaan JPA:lle
+    // Constructor
     public User() {}
     public User(Long id, String email, String password, String name, Instant createdAt, List<Vehicle> vehicles) {
         this.id = id;
@@ -33,7 +37,7 @@ public class User {
         this.vehicles = vehicles;
     }
 
-    // Getterit ja setterit
+    // Getters and Setters
 
     public Long getId() {
         return id;
