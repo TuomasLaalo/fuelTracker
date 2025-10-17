@@ -1,24 +1,65 @@
 package fi.laalo.fueltracker.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import java.time.LocalDateTime;
+import java.time.Instant;
 
 
 @Entity
+@Table(name = "fuel_entries")
 public class FuelEntry {
+
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private LocalDateTime dateTime;
+    
+    @NotNull
+    @Positive
+    @Column(nullable = false)
     private Double litres;
+    
+    @NotNull
+    @Positive
+    @Column(nullable = false)
     private Double odometer;
-    private Double pricePerLitre;
-    private Double totalPrice;
+    
+    @Column(nullable = false)
+    private double pricePerLitre;
+    
+    @Column(nullable = false)
+    private double totalPrice;
+    
+    @Column(length = 255)
     private String location;
+    
+    @Column(length = 1000)
     private String notes;
+    
+    @Column(nullable = false)
     private Boolean fullTank;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt = Instant.now();
+
+    @Column(name = "updated_at")
+    private Instant updatedAt;
+
+    // Relation to Vehicle
+    @ManyToOne
+    @JoinColumn(name = "vehicle_id", nullable = false)
+    private Vehicle vehicle;
+
+    // Lifecycle callbacks
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = Instant.now();
+    }
 
 
     // Getters and Setters
@@ -77,6 +118,24 @@ public class FuelEntry {
     }
     public void setFullTank(Boolean fullTank) {
         this.fullTank = fullTank;
+    }
+    public Vehicle getVehicle() {
+        return vehicle;
+    }
+    public void setVehicle(Vehicle vehicle) {
+        this.vehicle = vehicle;
+    }
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
    
 }
