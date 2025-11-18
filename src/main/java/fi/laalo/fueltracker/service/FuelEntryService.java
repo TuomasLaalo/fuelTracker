@@ -4,6 +4,7 @@ import fi.laalo.fueltracker.model.FuelEntry;
 import fi.laalo.fueltracker.repository.FuelEntryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import fi.laalo.fueltracker.model.User;
 
 import java.util.List;
 
@@ -15,14 +16,15 @@ public class FuelEntryService {
 
     // CRUD operations
 
-    public List<FuelEntry> getAllEntries() {
-        return repository.findAll();
-    }
-
-    public FuelEntry addEntry(FuelEntry entry) {
+    public FuelEntry createForUser(FuelEntry entry, User user) {
+        entry.setUser(user);
         return repository.save(entry);
     }
 
+    public List<FuelEntry> getAllForUser(Long userId) {
+        return repository.findByUserId(userId);
+    }
+  
     public FuelEntry getEntryById(Long id) {
         return repository.findById(id).orElse(null);
     }
@@ -32,7 +34,7 @@ public class FuelEntryService {
     }
 
     // Calculation of average fuel consumption
-    
+
     public double calculateConsumption() {
 
         List<FuelEntry> all = repository.findAll();

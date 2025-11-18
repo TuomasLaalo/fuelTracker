@@ -25,7 +25,7 @@ public class AuthController {
         this.authenticationManager = authenticationManager;
     }
 
-    // 🔹 Rekisteröi uusi käyttäjä
+    // Rekisteröi uusi käyttäjä
     @PostMapping("/register")
     public User register(@RequestBody User user) {
         if (userRepository.findByEmail(user.getEmail()) != null) {

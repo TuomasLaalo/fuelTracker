@@ -14,3 +14,24 @@ Authorization: Basic dGVzdGNsaWVudEBleGFtcGxlLmNvbTpjbGllbnQxMjM=
 ### Get user by email (requires Basic Auth)
 GET http://localhost:8080/api/users/email?email=testclient@example.com
 Authorization: Basic dGVzdGNsaWVudEBleGFtcGxlLmNvbTpjbGllbnQxMjM=
+
+### Add fuel entry for logged-in user
+POST http://localhost:8080/api/fuel_entries
+Authorization: Basic dGVzdGNsaWVudEBleGFtcGxlLmNvbTpjbGllbnQxMjM=
+Content-Type: application/json
+
+{
+  "vehicleId": 1,
+  "dateTime": "2025-11-18T15:01:00",
+  "litres": 40.5,
+  "odometer": 12345,
+  "pricePerLitre": 1.95,
+  "totalPrice": 79.0,
+  "location": "Shell Helsinki",
+  "notes": "Testi",
+  "fullTank": true
+}
+
+### Get all fuel entries for logged-in user
+GET http://localhost:8080/api/fuel_entries
+Authorization: Basic dGVzdGNsaWVudEBleGFtcGxlLmNvbTpjbGllbnQxMjM=

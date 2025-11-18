@@ -10,8 +10,10 @@ import java.time.Instant;
 @Table(name = "fuel_entries")
 public class FuelEntry {
 
-
-
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -65,6 +67,12 @@ public class FuelEntry {
     // Getters and Setters
 
 
+    public User getUser() {
+        return user;
+    }
+    public void setUser(User user) {
+        this.user = user;
+    }
     public Long getId() {
         return id;
     }

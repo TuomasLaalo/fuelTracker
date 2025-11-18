@@ -1,10 +1,15 @@
 package fi.laalo.fueltracker.controller;
 
-
 import fi.laalo.fueltracker.model.FuelEntry;
 import fi.laalo.fueltracker.service.FuelEntryService;
+import fi.laalo.fueltracker.service.UserService;
+import fi.laalo.fueltracker.model.User;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 
@@ -14,31 +19,32 @@ import java.util.List;
 
 public class FuelEntryController {
 
-
-
     @Autowired
     private FuelEntryService service;
 
+    @Autowired
+    private UserService userService;
 
-    // Get all
-    @GetMapping
-    public List<FuelEntry> getAll() {
-        return service.getAllEntries();
+    // Helper method to get current authenticated user
+    private User getCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        return userService.findByEmail(email).orElseThrow();
     }
-
-    // Get by ID
-    @GetMapping("/{id}")
-    public FuelEntry getById(@PathVariable Long id) {
-        return service.getEntryById(id);
-    }
-
-    // Add new entry
+    // Add new fuel entry
     @PostMapping
-    public FuelEntry addEntry(@RequestBody FuelEntry entry) {
-        return service.addEntry(entry);
+    public FuelEntry addFuelEntry(@RequestBody FuelEntry entry) {
+        User currentUser = getCurrentUser();
+        return service.createForUser(entry, currentUser);
+    }
+    // Get all fuel entries for current user
+    @GetMapping
+    public List<FuelEntry> getUserFuelEntries() {
+        User currentUser = getCurrentUser();
+        return service.getAllForUser(currentUser.getId());
     }
 
-    // Delete entry
+    // Delete fuel entry by ID
     @DeleteMapping("/{id}")
     public void deleteEntry(@PathVariable Long id) {
         service.deleteEntry(id);
@@ -49,6 +55,5 @@ public class FuelEntryController {
     public double calculateConsumption() {
         return service.calculateConsumption();
     }
-
 
 }
