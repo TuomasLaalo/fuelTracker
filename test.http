@@ -1,0 +1,16 @@
+### Register user
+POST http://localhost:8080/api/users/register
+Content-Type: application/json
+
+{
+  "email": "testclient@example.com",
+  "password": "client123"
+}
+
+### Test login with Basic Auth
+GET http://localhost:8080/api/users/1
+Authorization: Basic dGVzdGNsaWVudEBleGFtcGxlLmNvbTpjbGllbnQxMjM=
+
+### Get user by email (requires Basic Auth)
+GET http://localhost:8080/api/users/email?email=testclient@example.com
+Authorization: Basic dGVzdGNsaWVudEBleGFtcGxlLmNvbTpjbGllbnQxMjM=
