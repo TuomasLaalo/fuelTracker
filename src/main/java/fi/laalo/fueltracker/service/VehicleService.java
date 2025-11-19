@@ -4,6 +4,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import fi.laalo.fueltracker.repository.VehicleRepository;
 import fi.laalo.fueltracker.model.Vehicle;
+import fi.laalo.fueltracker.model.User;
+
 
 import java.util.List;
 
@@ -22,12 +24,13 @@ public class VehicleService {
     }
 
     // Find vehicle by ID
-    public Vehicle getVehicleById(Long id) {
-        return repository.findById(id).orElse(null);
+    public Vehicle getById(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Vehicle not found"));
     }
 
     // Add or update vehicle
-    public Vehicle saveVehicle(Vehicle vehicle) {
+    public Vehicle save(Vehicle vehicle) {
         return repository.save(vehicle);
     }
 
@@ -47,6 +50,11 @@ public class VehicleService {
     public boolean vehicleExistsByLicensePlate(String licensePlate) {
         return repository.existsByLicensePlate(licensePlate);
     }
+
+    public List<Vehicle> getVehiclesByUser(User user) {
+        return repository.findByUser(user);
+    }
+
 
 
 }

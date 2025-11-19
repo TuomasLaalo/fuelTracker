@@ -5,6 +5,7 @@ import fi.laalo.fueltracker.repository.FuelEntryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import fi.laalo.fueltracker.model.User;
+import fi.laalo.fueltracker.model.Vehicle;
 
 import java.util.List;
 
@@ -53,5 +54,14 @@ public class FuelEntryService {
         }
 
         return (latest.getLitres() / distance) * 100; // Liters per 100 km
+    }
+
+    // Adapter convenience methods expected by controllers
+    public FuelEntry save(FuelEntry entry) {
+        return repository.save(entry);
+    }
+
+    public List<FuelEntry> getByVehicle(Vehicle vehicle) {
+        return repository.findByVehicleOrderByDateTimeAsc(vehicle);
     }
 }

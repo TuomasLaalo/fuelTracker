@@ -1,10 +1,11 @@
 package fi.laalo.fueltracker.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import fi.laalo.fueltracker.repository.UserRepository;
 import fi.laalo.fueltracker.model.User;
-import org.springframework.security.crypto.password.PasswordEncoder;
+
 
 import java.util.Optional;
 
@@ -16,6 +17,8 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    
 
     public User createUser(User user) {
         return userRepository.save(user);
@@ -31,6 +34,7 @@ public class UserService {
     User user = new User();
     user.setEmail(email);
     user.setPassword(passwordEncoder.encode(rawPassword));
+    
 
     return userRepository.save(user);
 }
@@ -43,7 +47,9 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-
+public User getByEmail(String email) {
+    return userRepository.findByEmail(email);
+}
 
 
 }

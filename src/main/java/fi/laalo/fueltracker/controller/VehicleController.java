@@ -1,59 +1,54 @@
 package fi.laalo.fueltracker.controller;
 
-import fi.laalo.fueltracker.service.VehicleService;
+import fi.laalo.fueltracker.dto.VehicleRequestDTO;
+import fi.laalo.fueltracker.dto.VehicleResponseDTO;
+import fi.laalo.fueltracker.mapper.VehicleMapper;
+import fi.laalo.fueltracker.model.User;
 import fi.laalo.fueltracker.model.Vehicle;
-
+import fi.laalo.fueltracker.service.UserService;
+import fi.laalo.fueltracker.service.VehicleService;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/vehicles")
-@CrossOrigin(origins = "*") // Dev use, Remove later
-
-
 public class VehicleController {
 
+    private final VehicleService vehicleService;
+    private final UserService userService;
 
-@Autowired
-private VehicleService service;
+    public VehicleController(VehicleService vehicleService, UserService userService) {
+        this.vehicleService = vehicleService;
+        this.userService = userService;
+    }
 
-// Get all vehicles
-@GetMapping
-public List<Vehicle> getAllVehicles() {
-    return service.getAllVehicles();
-}
+    private String getCurrentEmail() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
+    }
 
-// Get vehicle by ID
-@GetMapping("/{id}")
-public Vehicle getVehicleById(@PathVariable Long id) {
-    return service.getVehicleById(id);
-}
-// Add or update vehicle
-@PostMapping
-public Vehicle addOrUpdateVehicle(@RequestBody Vehicle vehicle) {
-    return service.saveVehicle(vehicle);
-}
-// Get vehicles by user ID
-@GetMapping("/user/{userId}")
-public List<Vehicle> getVehiclesByUserId(@PathVariable Long userId) {
-    return service.getVehiclesByUserId(userId);
-}
+    @GetMapping
+    public List<VehicleResponseDTO> getVehicles() {
+        String email = getCurrentEmail();
+        User user = userService.getByEmail(email);
 
-// Delete vehicle
-@DeleteMapping("/{id}")
-public void deleteVehicle(@PathVariable Long id) {
-    service.deleteVehicle(id);
-}
+        return vehicleService.getVehiclesByUser(user)
+                .stream()
+                .map(VehicleMapper::toDto)
+                .toList();
+    }
 
-// Check if vehicle exists by license plate
-@GetMapping("/exists/{licensePlate}")
-public boolean vehicleExistsByLicensePlate(@PathVariable String licensePlate) {
-    return service.vehicleExistsByLicensePlate(licensePlate);
-}
+    @PostMapping
+    public VehicleResponseDTO createVehicle(@RequestBody VehicleRequestDTO dto) {
 
+        String email = getCurrentEmail();
+        User user = userService.getByEmail(email);
 
+        Vehicle v = VehicleMapper.fromDto(dto);
+        v.setUser(user);
 
-
+        Vehicle saved = vehicleService.save(v);
+        return VehicleMapper.toDto(saved);
+    }
 }

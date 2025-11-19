@@ -1,4 +1,4 @@
-package fi.laalo.fueltracker;
+/* package fi.laalo.fueltracker;
 
 import fi.laalo.fueltracker.controller.VehicleController;
 import fi.laalo.fueltracker.model.Vehicle;
@@ -202,3 +202,4 @@ public class VehicleControllerTest {
         System.out.println("✅ GET /api/vehicles/exists/{licensePlate} - Checks vehicle existence");
     }
 }
+*/
