@@ -1,6 +1,10 @@
 package fi.laalo.fueltracker.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import java.time.Instant;
 import java.util.List;
 
@@ -14,18 +18,25 @@ public class Vehicle {
     private Long id;
 
     @Column(name = "make", nullable = false)
+    @NotBlank(message = "Make is required")
     private String make;
 
     @Column(name = "model", nullable = false)
+    @NotBlank(message = "Model is required")
     private String model;
 
     @Column(name = "fuel_type", nullable = false)
+    @NotBlank(message = "Fuel type is required")
     private String fuelType;
 
     @Column(name = "manufacturing_year", nullable = false)
+    @NotNull(message = "Manufacturing year is required")
+    @Min(value = 1900, message = "Manufacturing year must be at least 1900")
+    @Positive(message = "Manufacturing year must be positive")
     private Integer manufacturingYear;
 
     @Column(name = "license_plate", nullable = false, unique = true)
+    @NotBlank(message = "License plate is required")
     private String licensePlate;
 
     @Column(name = "created_at", nullable = false)

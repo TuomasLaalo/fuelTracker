@@ -9,6 +9,7 @@ import fi.laalo.fueltracker.model.Vehicle;
 import fi.laalo.fueltracker.service.FuelEntryService;
 import fi.laalo.fueltracker.service.UserService;
 import fi.laalo.fueltracker.service.VehicleService;
+import jakarta.validation.Valid;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,7 +34,7 @@ public class FuelEntryController {
     }
 
     @PostMapping
-    public FuelEntryResponseDTO createEntry(@RequestBody FuelEntryRequestDTO dto) {
+    public FuelEntryResponseDTO createEntry(@Valid @RequestBody FuelEntryRequestDTO dto) {
 
         String email = getCurrentEmail();
         User user = userService.getByEmail(email);

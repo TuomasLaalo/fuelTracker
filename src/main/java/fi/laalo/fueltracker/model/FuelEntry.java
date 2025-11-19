@@ -19,23 +19,28 @@ public class FuelEntry {
     private Long id;
 
     @Column(nullable = false)
+    @NotNull(message = "Date and time is required")
     private LocalDateTime dateTime;
     
-    @NotNull
-    @Positive
+    @NotNull(message = "Litres is required")
+    @Positive(message = "Litres must be positive")
     @Column(nullable = false)
     private Double litres;
     
-    @NotNull
-    @Positive
+    @NotNull(message = "Odometer is required")
+    @Positive(message = "Odometer must be positive")
     @Column(nullable = false)
     private Double odometer;
     
+    @NotNull(message = "Price per litre is required")
+    @Positive(message = "Price per litre must be positive")
     @Column(nullable = false)
-    private double pricePerLitre;
+    private Double pricePerLitre;
     
+    @NotNull(message = "Total price is required")
+    @Positive(message = "Total price must be positive")
     @Column(nullable = false)
-    private double totalPrice;
+    private Double totalPrice;
     
     @Column(length = 255)
     private String location;
@@ -43,6 +48,7 @@ public class FuelEntry {
     @Column(length = 1000)
     private String notes;
     
+    @NotNull(message = "Full tank indicator is required")
     @Column(nullable = false)
     private Boolean fullTank;
 

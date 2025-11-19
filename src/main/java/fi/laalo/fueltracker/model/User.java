@@ -1,6 +1,8 @@
 package fi.laalo.fueltracker.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import java.time.Instant;
 import java.util.List;
 
@@ -15,9 +17,17 @@ public class User {
 
     
     @Column(unique = true, nullable = false)
+    @NotBlank(message = "Email is required")
+    @Email(message = "Email must be valid")
     private String email;
+    
+    // Password is encoded, so validation is done at DTO level only
     private String password;
+    
     private String name;
+    
+    @Column(name = "role")
+    private String role = "USER"; // Default role
 
     private Instant createdAt = Instant.now();
 
@@ -85,5 +95,13 @@ public class User {
 
     public void setVehicles(List<Vehicle> vehicles) {
         this.vehicles = vehicles;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }
