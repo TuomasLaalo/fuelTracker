@@ -46,6 +46,10 @@ const schema = yup.object({
     .number()
     .positive('Initial odometer must be positive')
     .required('Initial odometer is required'),
+  tankCapacityLiters: yup
+    .number()
+    .positive('Tank capacity must be positive')
+    .required('Tank capacity is required'),
 })
 
 export default function Vehicles() {
@@ -74,6 +78,7 @@ export default function Vehicles() {
       reset({
         ...vehicle,
         initialOdometer: vehicle.initialOdometer ?? null,
+        tankCapacityLiters: vehicle.tankCapacityLiters ?? null,
       })
     } else {
       reset({})
@@ -88,10 +93,11 @@ export default function Vehicles() {
   }
 
   const onSubmit = async (data) => {
-    // Ensure initialOdometer is sent as a number
+    // Ensure numeric fields are sent as numbers
     const submitData = {
       ...data,
       initialOdometer: data.initialOdometer != null ? parseFloat(data.initialOdometer) : null,
+      tankCapacityLiters: data.tankCapacityLiters != null ? parseFloat(data.tankCapacityLiters) : null,
     }
     
     const result = editingVehicle
@@ -150,13 +156,14 @@ export default function Vehicles() {
               <TableCell>Year</TableCell>
               <TableCell>License Plate</TableCell>
               <TableCell>Initial Odometer</TableCell>
+              <TableCell>Tank Capacity</TableCell>
               <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {vehicles.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} align="center">
+                <TableCell colSpan={8} align="center">
                   <Typography color="text.secondary">No vehicles found</Typography>
                 </TableCell>
               </TableRow>
@@ -169,6 +176,7 @@ export default function Vehicles() {
                   <TableCell>{vehicle.manufacturingYear}</TableCell>
                   <TableCell>{vehicle.licensePlate}</TableCell>
                   <TableCell>{vehicle.initialOdometer != null ? `${vehicle.initialOdometer.toLocaleString()} km` : '-'}</TableCell>
+                  <TableCell>{vehicle.tankCapacityLiters != null ? `${vehicle.tankCapacityLiters} L` : '-'}</TableCell>
                   <TableCell align="right">
                     <IconButton onClick={() => handleOpen(vehicle)} size="small">
                       <EditIcon />
@@ -253,6 +261,18 @@ export default function Vehicles() {
               value={watch('initialOdometer') ?? ''}
               error={!!errors.initialOdometer}
               helperText={errors.initialOdometer?.message || "Current odometer reading when adding this vehicle"}
+              margin="normal"
+            />
+            <TextField
+              fullWidth
+              label="Tank Capacity (Liters)"
+              type="number"
+              step="0.1"
+              inputProps={{ step: "0.1", min: "0" }}
+              {...register('tankCapacityLiters', { valueAsNumber: true })}
+              value={watch('tankCapacityLiters') ?? ''}
+              error={!!errors.tankCapacityLiters}
+              helperText={errors.tankCapacityLiters?.message || "Example: Opel Corsa → 40 L. Required for automatic consumption calculation."}
               margin="normal"
             />
           </DialogContent>

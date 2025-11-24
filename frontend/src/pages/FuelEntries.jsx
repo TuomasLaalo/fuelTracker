@@ -55,7 +55,6 @@ const schema = yup.object({
   totalPrice: yup.number().positive('Total price must be positive').required('Total price is required'),
   location: yup.string(),
   notes: yup.string(),
-  fullTank: yup.boolean().required('Full tank indicator is required'),
 })
 
 export default function FuelEntries() {
@@ -162,7 +161,6 @@ export default function FuelEntries() {
       reset({
         vehicleId: selectedVehicle ? parseInt(selectedVehicle) : '',
         dateTime: dayjs().format('YYYY-MM-DDTHH:mm'),
-        fullTank: true,
         useTrip: false,
         tripDistance: null,
         odometer: initialOdometer,
@@ -277,14 +275,13 @@ export default function FuelEntries() {
                 <TableCell>Price/L</TableCell>
                 <TableCell>Total</TableCell>
                 <TableCell>Location</TableCell>
-                <TableCell>Full Tank</TableCell>
                 <TableCell align="right">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {entries.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} align="center">
+                  <TableCell colSpan={7} align="center">
                     <Typography color="text.secondary">No fuel entries found</Typography>
                   </TableCell>
                 </TableRow>
@@ -297,7 +294,6 @@ export default function FuelEntries() {
                     <TableCell>€{entry.pricePerLitre.toFixed(2)}</TableCell>
                     <TableCell>€{entry.totalPrice.toFixed(2)}</TableCell>
                     <TableCell>{entry.location || '-'}</TableCell>
-                    <TableCell>{entry.fullTank ? 'Yes' : 'No'}</TableCell>
                     <TableCell align="right">
                       <IconButton onClick={() => handleOpen(entry)} size="small">
                         <EditIcon />
@@ -492,19 +488,6 @@ export default function FuelEntries() {
               helperText={errors.notes?.message}
               margin="normal"
             />
-            <FormControl fullWidth margin="normal" error={!!errors.fullTank}>
-              <InputLabel>Full Tank</InputLabel>
-              <Select
-                {...register('fullTank')}
-                value={watch('fullTank') ?? ''}
-                onChange={(e) => setValue('fullTank', e.target.value === 'true')}
-                label="Full Tank"
-              >
-                <MenuItem value={true}>Yes</MenuItem>
-                <MenuItem value={false}>No</MenuItem>
-              </Select>
-              {errors.fullTank && <FormHelperText>{errors.fullTank.message}</FormHelperText>}
-            </FormControl>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose}>Cancel</Button>

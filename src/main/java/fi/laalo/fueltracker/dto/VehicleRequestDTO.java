@@ -21,5 +21,12 @@ public record VehicleRequestDTO(
         Integer manufacturingYear,
         
         @NotBlank(message = "License plate is required")
-        String licensePlate
+        String licensePlate,
+        
+        @Positive(message = "Initial odometer must be positive")
+        Double initialOdometer,
+        
+        @NotNull(message = "Tank capacity is required")
+        @Positive(message = "Tank capacity must be positive")
+        Double tankCapacityLiters
 ) {}

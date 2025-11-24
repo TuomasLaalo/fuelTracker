@@ -39,6 +39,15 @@ public class Vehicle {
     @NotBlank(message = "License plate is required")
     private String licensePlate;
 
+    @Column(name = "initial_odometer")
+    @Positive(message = "Initial odometer must be positive")
+    private Double initialOdometer;
+
+    @Column(name = "tank_capacity_liters", nullable = false)
+    @NotNull(message = "Tank capacity is required")
+    @Positive(message = "Tank capacity must be positive")
+    private Double tankCapacityLiters;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt = Instant.now();
 
@@ -128,6 +137,22 @@ public class Vehicle {
 
     public void setLicensePlate(String licensePlate) {
         this.licensePlate = licensePlate;
+    }
+
+    public Double getInitialOdometer() {
+        return initialOdometer;
+    }
+
+    public void setInitialOdometer(Double initialOdometer) {
+        this.initialOdometer = initialOdometer;
+    }
+
+    public Double getTankCapacityLiters() {
+        return tankCapacityLiters;
+    }
+
+    public void setTankCapacityLiters(Double tankCapacityLiters) {
+        this.tankCapacityLiters = tankCapacityLiters;
     }
 
     public Instant getCreatedAt() {

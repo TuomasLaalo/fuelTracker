@@ -15,8 +15,7 @@ public class FuelEntryMapper {
                 f.getTotalPrice(),
                 f.getDateTime(),
                 f.getLocation(),
-                f.getNotes(),
-                f.getFullTank()
+                f.getNotes()
         );
     }
 }

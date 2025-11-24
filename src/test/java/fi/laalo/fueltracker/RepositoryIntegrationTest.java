@@ -59,7 +59,6 @@ public class RepositoryIntegrationTest {
         entry.setTotalPrice(45.2 * 1.89);
         entry.setOdometer(520.0);
         entry.setDateTime(LocalDateTime.now());
-        entry.setFullTank(true);
         entry.setVehicle(vehicle);
 
         fuelEntryRepository.save(entry);

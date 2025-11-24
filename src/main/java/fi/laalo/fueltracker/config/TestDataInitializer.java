@@ -56,6 +56,7 @@ public class TestDataInitializer implements CommandLineRunner {
         testVehicle.setFuelType("Gasoline");
         testVehicle.setManufacturingYear(2020);
         testVehicle.setLicensePlate("ABC-123");
+        testVehicle.setTankCapacityLiters(50.0); // Required field
         testVehicle.setUser(testUser);
         testVehicle = vehicleRepository.save(testVehicle);
         System.out.println("Created test vehicle: " + testVehicle.getMake() + " " + testVehicle.getModel());
@@ -74,7 +75,6 @@ public class TestDataInitializer implements CommandLineRunner {
         entry1.setTotalPrice(83.25);
         entry1.setLocation("Helsinki");
         entry1.setNotes("First fill-up");
-        entry1.setFullTank(true);
         fuelEntryRepository.save(entry1);
 
         // Entry 2 (2 weeks later)
@@ -88,7 +88,6 @@ public class TestDataInitializer implements CommandLineRunner {
         entry2.setTotalPrice(79.90);
         entry2.setLocation("Espoo");
         entry2.setNotes("Second fill-up");
-        entry2.setFullTank(true);
         fuelEntryRepository.save(entry2);
 
         // Entry 3 (1 month later)
@@ -102,7 +101,6 @@ public class TestDataInitializer implements CommandLineRunner {
         entry3.setTotalPrice(76.00);
         entry3.setLocation("Vantaa");
         entry3.setNotes("Third fill-up");
-        entry3.setFullTank(true);
         fuelEntryRepository.save(entry3);
 
         // Entry 4 (recent)
@@ -116,7 +114,6 @@ public class TestDataInitializer implements CommandLineRunner {
         entry4.setTotalPrice(82.56);
         entry4.setLocation("Helsinki");
         entry4.setNotes("Recent fill-up");
-        entry4.setFullTank(true);
         fuelEntryRepository.save(entry4);
 
         System.out.println("Created 4 test fuel entries");

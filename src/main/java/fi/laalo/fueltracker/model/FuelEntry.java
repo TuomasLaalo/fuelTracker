@@ -47,10 +47,6 @@ public class FuelEntry {
     
     @Column(length = 1000)
     private String notes;
-    
-    @NotNull(message = "Full tank indicator is required")
-    @Column(nullable = false)
-    private Boolean fullTank;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
@@ -126,12 +122,6 @@ public class FuelEntry {
     }
     public void setNotes(String notes) {
         this.notes = notes;
-    }
-    public Boolean getFullTank() {
-        return fullTank;
-    }
-    public void setFullTank(Boolean fullTank) {
-        this.fullTank = fullTank;
     }
     public Vehicle getVehicle() {
         return vehicle;

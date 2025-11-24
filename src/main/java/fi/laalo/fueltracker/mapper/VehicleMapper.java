@@ -13,7 +13,9 @@ public class VehicleMapper {
                 v.getModel(),
                 v.getFuelType(),
                 v.getManufacturingYear(),
-                v.getLicensePlate()
+                v.getLicensePlate(),
+                v.getInitialOdometer(),
+                v.getTankCapacityLiters()
         );
     }
 
@@ -24,6 +26,8 @@ public class VehicleMapper {
         v.setFuelType(dto.fuelType());
         v.setManufacturingYear(dto.manufacturingYear());
         v.setLicensePlate(dto.licensePlate());
+        v.setInitialOdometer(dto.initialOdometer());
+        v.setTankCapacityLiters(dto.tankCapacityLiters());
         return v;
     }
 }

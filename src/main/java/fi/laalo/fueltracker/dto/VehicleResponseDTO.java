@@ -6,5 +6,7 @@ public record VehicleResponseDTO(
         String model,
         String fuelType,
         Integer manufacturingYear,
-        String licensePlate
+        String licensePlate,
+        Double initialOdometer,
+        Double tankCapacityLiters
 ) {}

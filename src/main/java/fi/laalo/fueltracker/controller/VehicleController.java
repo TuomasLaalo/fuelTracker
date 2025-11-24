@@ -8,6 +8,7 @@ import fi.laalo.fueltracker.model.Vehicle;
 import fi.laalo.fueltracker.service.UserService;
 import fi.laalo.fueltracker.service.VehicleService;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,6 +41,20 @@ public class VehicleController {
                 .toList();
     }
 
+    @GetMapping("/{id}")
+    public VehicleResponseDTO getVehicle(@PathVariable Long id) {
+        String email = getCurrentEmail();
+        User user = userService.getByEmail(email);
+        
+        Vehicle vehicle = vehicleService.getById(id);
+        
+        if (!vehicle.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Not your vehicle");
+        }
+        
+        return VehicleMapper.toDto(vehicle);
+    }
+
     @PostMapping
     public VehicleResponseDTO createVehicle(@Valid @RequestBody VehicleRequestDTO dto) {
 
@@ -51,5 +66,44 @@ public class VehicleController {
 
         Vehicle saved = vehicleService.save(v);
         return VehicleMapper.toDto(saved);
+    }
+
+    @PutMapping("/{id}")
+    public VehicleResponseDTO updateVehicle(@PathVariable Long id, @Valid @RequestBody VehicleRequestDTO dto) {
+        String email = getCurrentEmail();
+        User user = userService.getByEmail(email);
+        
+        Vehicle vehicle = vehicleService.getById(id);
+        
+        if (!vehicle.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Not your vehicle");
+        }
+        
+        // Update fields
+        vehicle.setMake(dto.make());
+        vehicle.setModel(dto.model());
+        vehicle.setFuelType(dto.fuelType());
+        vehicle.setManufacturingYear(dto.manufacturingYear());
+        vehicle.setLicensePlate(dto.licensePlate());
+        vehicle.setInitialOdometer(dto.initialOdometer());
+        vehicle.setTankCapacityLiters(dto.tankCapacityLiters());
+        
+        Vehicle updated = vehicleService.save(vehicle);
+        return VehicleMapper.toDto(updated);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteVehicle(@PathVariable Long id) {
+        String email = getCurrentEmail();
+        User user = userService.getByEmail(email);
+        
+        Vehicle vehicle = vehicleService.getById(id);
+        
+        if (!vehicle.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Not your vehicle");
+        }
+        
+        vehicleService.deleteVehicle(id);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -11,6 +11,5 @@ public record FuelEntryResponseDTO(
         Double totalPrice,
         LocalDateTime dateTime,
         String location,
-        String notes,
-        Boolean fullTank
+        String notes
 ) {}

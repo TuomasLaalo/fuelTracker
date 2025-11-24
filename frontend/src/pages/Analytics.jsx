@@ -76,90 +76,38 @@ export default function Analytics() {
   }
 
   // Calculate total statistics from fuel entries
+  // Backend handles consumption calculation using tank capacity logic
   useEffect(() => {
     if (selectedVehicle && fuelEntries[selectedVehicle]) {
       const entries = fuelEntries[selectedVehicle]
       if (entries && entries.length > 0) {
-        // Sort by date (chronological order)
-        const sortedEntries = [...entries].sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime))
+        // Sort by date for display
+        const sortedEntries = [...entries].sort((a, b) => 
+          new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime()
+        )
 
+        // Calculate basic totals (backend handles consumption)
         const totalLitres = entries.reduce((sum, e) => sum + e.litres, 0)
         const totalCost = entries.reduce((sum, e) => sum + e.totalPrice, 0)
         const avgPricePerLitre = totalLitres > 0 ? totalCost / totalLitres : 0
-
-        // Calculate total distance (only from full tank entries, sorted by date)
-        const fullTankEntries = sortedEntries.filter(e => e.fullTank)
-        let totalDistance = 0
-        let totalFuelForDistance = 0
-        
-        for (let i = 1; i < fullTankEntries.length; i++) {
-          const currentOdometer = fullTankEntries[i].odometer
-          const previousOdometer = fullTankEntries[i - 1].odometer
-          
-          // Check if odometer was reset (decreased significantly) or if it's a small decrease (data error)
-          const distance = currentOdometer - previousOdometer
-          
-          if (distance > 0) {
-            // Normal case: odometer increased
-            totalDistance += distance
-            totalFuelForDistance += fullTankEntries[i].litres
-          } else if (distance < -50) {
-            // Odometer reset (decreased by more than 50km): use current odometer as distance
-            // This is an approximation - we don't know the actual distance before reset
-            totalDistance += currentOdometer
-            totalFuelForDistance += fullTankEntries[i].litres
-          } else if (distance < 0 && distance >= -50) {
-            // Small decrease (likely data error): skip this entry
-            // Could also be a partial fill-up that was marked as full tank
-            console.warn(`Odometer decreased by ${Math.abs(distance)}km between entries, skipping calculation`)
-          }
-        }
-
-        // Calculate average consumption from full tank entries
-        const avgConsumptionFromFullTanks = totalDistance > 0 
-          ? (totalFuelForDistance / totalDistance) * 100 
-          : 0
-
-        // If not enough full tank entries, calculate from all entries
-        let avgConsumptionFromAll = 0
-        if (fullTankEntries.length < 2 && sortedEntries.length >= 2) {
-          let allDistance = 0
-          let allFuel = 0
-          for (let i = 1; i < sortedEntries.length; i++) {
-            const currentOdometer = sortedEntries[i].odometer
-            const previousOdometer = sortedEntries[i - 1].odometer
-            const distance = currentOdometer - previousOdometer
-            
-            if (distance > 0) {
-              allDistance += distance
-              allFuel += sortedEntries[i].litres
-            } else if (distance < -100) {
-              // Odometer reset
-              allDistance += currentOdometer
-              allFuel += sortedEntries[i].litres
-            }
-          }
-          avgConsumptionFromAll = allDistance > 0 ? (allFuel / allDistance) * 100 : 0
-        }
 
         const firstEntry = sortedEntries[0]
         const lastEntry = sortedEntries[sortedEntries.length - 1]
         const totalOdometerDistance = Math.max(0, lastEntry.odometer - firstEntry.odometer)
 
-        // Use full tank consumption if available, otherwise use all entries
-        const avgConsumption = avgConsumptionFromFullTanks > 0 
-          ? avgConsumptionFromFullTanks 
-          : avgConsumptionFromAll
+        // Get distance and consumption from backend history data
+        const totalDistance = history.reduce((sum, h) => sum + h.distanceKm, 0)
+        const consumptionCyclesCount = history.length
 
         setTotalStats({
           totalLitres: totalLitres,
           totalCost: totalCost,
           avgPricePerLitre: avgPricePerLitre,
-          totalDistance: totalDistance > 0 ? totalDistance : totalOdometerDistance,
+          totalDistance: totalDistance,
           totalOdometerDistance: totalOdometerDistance,
-          avgConsumption: avgConsumption,
+          avgConsumption: consumption || 0,
           entryCount: entries.length,
-          fullTankCount: fullTankEntries.length,
+          consumptionCyclesCount: consumptionCyclesCount,
           firstEntryDate: firstEntry.dateTime,
           lastEntryDate: lastEntry.dateTime,
         })
@@ -169,15 +117,19 @@ export default function Analytics() {
     } else {
       setTotalStats(null)
     }
-  }, [selectedVehicle, fuelEntries])
+  }, [selectedVehicle, fuelEntries, consumption, history])
 
+  // Use backend history data (which should also follow FULL→FULL logic)
   const historyData = history.map((h) => ({
     date: dayjs(h.fromDate).format('DD.MM'),
     consumption: parseFloat(h.consumptionPer100km.toFixed(2)),
     distance: parseFloat(h.distanceKm.toFixed(0)),
   }))
 
+  // 8. Recalculate monthly totals using corrected valid entries
+  // Filter monthly stats to only show months with valid consumption cycles
   const monthlyData = Object.entries(monthlyStats)
+    .filter(([_, stats]) => stats.avgConsumptionPer100km > 0) // Only valid consumption
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([month, stats]) => ({
       month: dayjs(month).format('MMM YYYY'),
@@ -240,13 +192,11 @@ export default function Analytics() {
                 </Typography>
                 {totalStats && (
                   <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                    {totalStats.fullTankCount === 0 
-                      ? 'Mark entries as "Full Tank" for accurate calculation'
-                      : totalStats.fullTankCount < 2
-                      ? 'Need 2+ full tank entries for calculation. Check that odometer readings are correct.'
-                      : totalStats.totalDistance === 0
-                      ? '⚠️ Odometer readings may be incorrect (decreasing values detected)'
-                      : ''}
+                    {totalStats.consumptionCyclesCount === 0 
+                      ? 'Need more fuel entries to calculate consumption (tank capacity based)'
+                      : totalStats.consumptionCyclesCount === 1
+                      ? '1 valid consumption cycle'
+                      : `${totalStats.consumptionCyclesCount} valid consumption cycles`}
                   </Typography>
                 )}
               </CardContent>
@@ -264,15 +214,10 @@ export default function Analytics() {
                     <Typography variant="h4">
                       {totalStats.totalDistance > 0 
                         ? `${totalStats.totalDistance.toFixed(0)} km`
-                        : totalStats.totalOdometerDistance > 0
-                        ? `${totalStats.totalOdometerDistance.toFixed(0)} km`
                         : '0 km'}
                     </Typography>
                     <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                       {totalStats.entryCount} entries
-                      {totalStats.fullTankCount < 2 && totalStats.fullTankCount > 0 && (
-                        <span> ({totalStats.fullTankCount} full tank)</span>
-                      )}
                     </Typography>
                   </CardContent>
                 </Card>
@@ -315,7 +260,6 @@ export default function Analytics() {
           )}
 
           {/* Consumption History Chart */}
-
           {historyData.length > 0 && (
             <Grid item xs={12}>
               <Paper sx={{ p: 2 }}>
@@ -323,7 +267,7 @@ export default function Analytics() {
                   Consumption History (L/100km)
                 </Typography>
                 <Typography variant="body2" color="text.secondary" gutterBottom>
-                  Shows consumption between full tank fill-ups
+                  Shows consumption cycles detected automatically based on tank capacity
                 </Typography>
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={historyData}>
@@ -363,8 +307,8 @@ export default function Analytics() {
             <Grid item xs={12}>
               <Paper sx={{ p: 2 }}>
                 <Typography variant="body2" color="text.secondary" align="center">
-                  Not enough full tank entries to calculate consumption history. 
-                  Mark entries as "Full Tank" for accurate consumption tracking.
+                  Not enough fuel entries to calculate consumption history. 
+                  Consumption is calculated automatically based on tank capacity.
                 </Typography>
               </Paper>
             </Grid>
@@ -376,6 +320,9 @@ export default function Analytics() {
                 <Paper sx={{ p: 2 }}>
                   <Typography variant="h6" gutterBottom>
                     Monthly Consumption (L/100km)
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                    Calculated from valid consumption cycles (tank capacity based)
                   </Typography>
                   <ResponsiveContainer width="100%" height={300}>
                     <BarChart data={monthlyData}>
@@ -438,4 +385,3 @@ export default function Analytics() {
     </Box>
   )
 }
-

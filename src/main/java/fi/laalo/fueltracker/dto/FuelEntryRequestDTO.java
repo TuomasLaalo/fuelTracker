@@ -16,9 +16,14 @@ public record FuelEntryRequestDTO(
         @Positive(message = "Litres must be positive")
         Double litres,
         
-        @NotNull(message = "Odometer is required")
-        @Positive(message = "Odometer must be positive")
+        // Odometer is required if useTrip is false/null, otherwise calculated from trip
         Double odometer,
+        
+        // Trip distance (optional, used if useTrip is true)
+        Double tripDistance,
+        
+        // Whether to use trip distance instead of odometer reading
+        Boolean useTrip,
         
         @NotNull(message = "Price per litre is required")
         @Positive(message = "Price per litre must be positive")
@@ -30,8 +35,5 @@ public record FuelEntryRequestDTO(
         
         String location,
         
-        String notes,
-        
-        @NotNull(message = "Full tank indicator is required")
-        Boolean fullTank
+        String notes
 ) {}

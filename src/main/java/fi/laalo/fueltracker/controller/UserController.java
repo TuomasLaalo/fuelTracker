@@ -17,12 +17,20 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = "*") // Dev use, Remove later
-
 public class UserController {
 
 @Autowired
 private UserService userService;
+
+// Get current logged-in user
+@GetMapping("/me")
+public ResponseEntity<UserResponseDTO> getCurrentUser() {
+    String email = org.springframework.security.core.context.SecurityContextHolder
+            .getContext().getAuthentication().getName();
+    User user = userService.getByEmail(email);
+    UserResponseDTO response = UserMapper.toDto(user);
+    return ResponseEntity.ok(response);
+}
 
 // Get user by email
 @GetMapping("/email")
@@ -39,13 +47,9 @@ public Optional<UserResponseDTO> getUserById(@PathVariable Long id) {
 }
 
 @PostMapping("/register")
-public ResponseEntity<?> register(@Valid @RequestBody UserRegisterRequestDTO request) {
-    try {
-        User user = userService.registerNewUser(request.email(), request.password());
-        UserResponseDTO response = UserMapper.toDto(user);
-        return ResponseEntity.ok(response);
-    } catch (IllegalArgumentException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
-    }
+public ResponseEntity<UserResponseDTO> register(@Valid @RequestBody UserRegisterRequestDTO request) {
+    User user = userService.registerNewUser(request.email(), request.password());
+    UserResponseDTO response = UserMapper.toDto(user);
+    return ResponseEntity.ok(response);
 }
 }
