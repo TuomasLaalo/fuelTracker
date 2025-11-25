@@ -1,8 +1,9 @@
 import axios from 'axios'
 import toast from 'react-hot-toast'
 
+// Use environment variable for production, fallback to '/api' for development (Vite proxy)
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -45,9 +46,10 @@ api.interceptors.response.use(
         toast.error('Server error. Please try again later.')
       }
     } else if (error.request) {
-      // Network error - backend might not be running
+      // Network error - backend might not be running or CORS issue
       console.error('Network error:', error.request)
-      toast.error('Cannot connect to backend. Make sure the server is running on http://localhost:8080')
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api'
+      toast.error(`Cannot connect to backend at ${apiUrl}. Please check your connection.`)
     } else {
       console.error('Request setup error:', error.message)
       toast.error('An unexpected error occurred.')

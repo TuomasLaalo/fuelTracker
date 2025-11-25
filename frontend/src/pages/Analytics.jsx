@@ -59,15 +59,13 @@ export default function Analytics() {
   const loadAnalytics = async () => {
     setLoading(true)
     try {
-      const [consResponse, histResponse, monthlyResponse] = await Promise.all([
+      const [consResponse, histResponse] = await Promise.all([
         analyticsService.getVehicleConsumption(selectedVehicle),
         analyticsService.getVehicleHistory(selectedVehicle),
-        analyticsService.getAllMonthlyStats(),
       ])
 
       setConsumption(consResponse.data)
       setHistory(histResponse.data)
-      setMonthlyStats(monthlyResponse.data)
     } catch (error) {
       toast.error('Failed to load analytics')
     } finally {
@@ -126,7 +124,65 @@ export default function Analytics() {
     distance: parseFloat(h.distanceKm.toFixed(0)),
   }))
 
-  // 8. Recalculate monthly totals using corrected valid entries
+  // Calculate vehicle-specific monthly stats from fuel entries and history
+  useEffect(() => {
+    if (selectedVehicle && fuelEntries[selectedVehicle]) {
+      const entries = fuelEntries[selectedVehicle]
+      if (entries && entries.length > 0) {
+        // Group entries by month
+        const entriesByMonth = {}
+        entries.forEach(entry => {
+          const monthKey = dayjs(entry.dateTime).format('YYYY-MM')
+          if (!entriesByMonth[monthKey]) {
+            entriesByMonth[monthKey] = []
+          }
+          entriesByMonth[monthKey].push(entry)
+        })
+
+        // Group history cycles by month (if available)
+        const cyclesByMonth = {}
+        if (history && history.length > 0) {
+          history.forEach(cycle => {
+            const monthKey = dayjs(cycle.toDate).format('YYYY-MM')
+            if (!cyclesByMonth[monthKey]) {
+              cyclesByMonth[monthKey] = []
+            }
+            cyclesByMonth[monthKey].push(cycle)
+          })
+        }
+
+        // Calculate stats for each month
+        const calculatedStats = {}
+        Object.keys(entriesByMonth).forEach(monthKey => {
+          const monthEntries = entriesByMonth[monthKey]
+          const monthCycles = cyclesByMonth[monthKey] || []
+          
+          const totalLitres = monthEntries.reduce((sum, e) => sum + e.litres, 0)
+          const totalCost = monthEntries.reduce((sum, e) => sum + e.totalPrice, 0)
+          
+          // Calculate average consumption from cycles in this month
+          let avgConsumption = 0
+          if (monthCycles.length > 0) {
+            const totalConsumption = monthCycles.reduce((sum, c) => sum + c.consumptionPer100km, 0)
+            avgConsumption = totalConsumption / monthCycles.length
+          }
+          
+          calculatedStats[monthKey] = {
+            avgConsumptionPer100km: avgConsumption,
+            totalCost: totalCost,
+            totalLitres: totalLitres,
+          }
+        })
+        
+        setMonthlyStats(calculatedStats)
+      } else {
+        setMonthlyStats({})
+      }
+    } else {
+      setMonthlyStats({})
+    }
+  }, [selectedVehicle, fuelEntries, history])
+
   // Filter monthly stats to only show months with valid consumption cycles
   const monthlyData = Object.entries(monthlyStats)
     .filter(([_, stats]) => stats.avgConsumptionPer100km > 0) // Only valid consumption

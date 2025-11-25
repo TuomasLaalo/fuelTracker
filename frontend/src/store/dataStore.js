@@ -12,9 +12,12 @@ const useDataStore = create((set) => ({
     set({ loading: true, error: null })
     try {
       const response = await vehicleService.getAll()
-      set({ vehicles: response.data, loading: false })
+      // Ensure vehicles is always an array, even if API returns unexpected data
+      const vehicles = Array.isArray(response.data) ? response.data : []
+      set({ vehicles, loading: false })
     } catch (error) {
-      set({ error: error.message, loading: false })
+      console.error('Error fetching vehicles:', error)
+      set({ error: error.message, vehicles: [], loading: false })
     }
   },
   
@@ -62,15 +65,25 @@ const useDataStore = create((set) => ({
     set({ loading: true, error: null })
     try {
       const response = await fuelEntryService.getByVehicle(vehicleId)
+      // Ensure fuel entries is always an array, even if API returns unexpected data
+      const entries = Array.isArray(response.data) ? response.data : []
       set((state) => ({
         fuelEntries: {
           ...state.fuelEntries,
-          [vehicleId]: response.data
+          [vehicleId]: entries
         },
         loading: false
       }))
     } catch (error) {
-      set({ error: error.message, loading: false })
+      console.error('Error fetching fuel entries:', error)
+      set((state) => ({
+        error: error.message,
+        fuelEntries: {
+          ...state.fuelEntries,
+          [vehicleId]: []
+        },
+        loading: false
+      }))
     }
   },
   
